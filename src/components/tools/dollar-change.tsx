@@ -1,44 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Files } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useDebounce } from "@/hooks/use-debounce";
-import type { DollarRate } from "@/types/dollar";
+import { useDollarContext } from "@/context/dollar-context";
 
 type ConversionDirection = "ars-to-usd" | "usd-to-ars";
 
-interface DollarChangeProps {
-  rates: DollarRate[];
-}
-
-export function DollarChange({ rates: initialRates }: DollarChangeProps) {
-  const [amount, setAmount] = useState<number>(0);
-  const [selectedRateIndex, setSelectedRateIndex] = useState<number>(0);
+export function DollarChange() {
+  const [amount, setAmount] = useState<number>(100);
+  const { selectedRateIndex, setSelectedRateIndex, rates } = useDollarContext();
   const [direction, setDirection] = useState<ConversionDirection>("ars-to-usd");
-  const [loading, setLoading] = useState(false);
-  const [rates, setRates] = useState<DollarRate[]>(initialRates);
   const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
 
   const debouncedAmount = useDebounce(amount, 300);
-
-  async function handleRefreshRates() {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/dolar", { next: { revalidate: 0 } });
-      if (!res.ok) throw new Error("Failed to fetch");
-      const newRates = await res.json();
-      setRates(newRates);
-      if (newRates.length > 0 && selectedRateIndex >= newRates.length) {
-        setSelectedRateIndex(0);
-      }
-    } catch (error) {
-      console.error("Failed to refresh rates:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   function handleDirectionSwitch() {
     setDirection((prev) =>
@@ -78,7 +55,7 @@ export function DollarChange({ rates: initialRates }: DollarChangeProps) {
         <div className="space-y-1">
           <label
             htmlFor="rate-select"
-            className="text-sm font-medium text-gray-700"
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Exchange Rate
           </label>
@@ -86,14 +63,14 @@ export function DollarChange({ rates: initialRates }: DollarChangeProps) {
             id="rate-select"
             value={selectedRateIndex}
             onChange={(e) => handleRateChange(Number(e.target.value))}
-            className="block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+            className="block w-full border border-gray-300 dark:border-gray-700 rounded-md shadow-sm p-2 bg-white dark:bg-gray-900"
           >
             {rates.map((rate) => (
               <option
                 key={`${rate.casa}-${rate.nombre}`}
                 value={rates.indexOf(rate)}
               >
-                {rate.nombre} ({rate.casa}) - {rate.venta.toFixed(2)}
+                {rate.nombre} | ${rate.venta.toFixed(2)}
               </option>
             ))}
           </select>
@@ -101,7 +78,10 @@ export function DollarChange({ rates: initialRates }: DollarChangeProps) {
       )}
 
       <div className="space-y-1">
-        <label htmlFor="amount" className="text-sm font-medium text-gray-700">
+        <label
+          htmlFor="amount"
+          className="text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Amount in {direction === "ars-to-usd" ? "ARS" : "USD"}
         </label>
         <input
@@ -113,43 +93,33 @@ export function DollarChange({ rates: initialRates }: DollarChangeProps) {
             setAmount(value);
           }}
           placeholder={`Enter amount in ${direction === "ars-to-usd" ? "ARS" : "USD"}`}
-          className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          className="block w-full border border-gray-300 dark:border-gray-700 rounded-md shadow-sm p-2 bg-white dark:bg-gray-900"
         />
       </div>
 
-      <Button
-        onClick={handleRefreshRates}
-        disabled={loading}
-        className="w-full"
-      >
-        {loading ? <LoadingSpinner /> : "Refresh Rates"}
-      </Button>
-
       {convertedAmount !== null && (
-        <div className="space-y-1">
+        <div className="flex flex-col gap-2">
           <label
             htmlFor="convertedAmount"
-            className="text-sm font-medium text-gray-700"
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Converted Amount in {direction === "ars-to-usd" ? "USD" : "ARS"}
           </label>
-          <div className="flex gap-2">
+            <Button
+            size="lg"
+            className="border border-gray-300 dark:border-gray-700 rounded-md shadow-sm p-2 bg-gray-50 dark:bg-gray-800 group focus-within:ring-2 focus-within:ring-slate-950 justify-between px-2"
+              onClick={() => copyToClipboard(convertedAmount.toFixed(2))}
+              aria-label="Copy to clipboard"
+            >
             <input
               type="text"
               id="convertedAmount"
               value={convertedAmount.toFixed(2)}
               readOnly
-              className="block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-50"
+              className="w-full text-lg bg-transparent focus:outline-none"
             />
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={() => copyToClipboard(convertedAmount.toFixed(2))}
-              aria-label="Copy to clipboard"
-            >
-              ⎘
+              <Files className="size-3" />
             </Button>
-          </div>
         </div>
       )}
     </Card>

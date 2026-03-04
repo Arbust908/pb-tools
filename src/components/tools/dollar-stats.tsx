@@ -1,14 +1,22 @@
-import type { DollarRate } from "@/types/dollar";
+"use client";
 
-interface DollarStatsProps {
-  rates: DollarRate[];
-}
+import { Card } from "@/components/ui/card";
+import { useDollarContext } from "@/context/dollar-context";
 
-export function DollarStats({ rates }: DollarStatsProps) {
+export function DollarStats() {
+  const { selectedRateIndex, rates } = useDollarContext();
+
   return (
     <>
       {rates.map((rate) => (
-        <article key={rate.casa} className="rounded-lg border p-4">
+        <Card
+          key={rate.casa}
+          className={`transition duration-300 ease-in-out ring-0 ${
+            rates.indexOf(rate) === selectedRateIndex
+              ? "ring-4 ring-blue-500"
+              : "ring-transparent"
+          }`}
+        >
           <h3 className="font-semibold">{rate.nombre}</h3>
           <div className="mt-2 flex justify-between">
             <div>
@@ -20,7 +28,7 @@ export function DollarStats({ rates }: DollarStatsProps) {
               <p className="text-lg font-bold">${rate.venta}</p>
             </div>
           </div>
-        </article>
+        </Card>
       ))}
     </>
   );

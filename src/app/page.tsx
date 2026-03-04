@@ -4,16 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Example } from "@/components/ui/example";
 
 export default function Home() {
-
-  const tools = [
-    {
-      id: 2026012000001
-    }
-  ]
-
-
   return (
-      <main className="flex w-full max-w-3xl flex-col items-center justify-between py-32 px-16  sm:items-start">
+      <main className="flex w-full max-w-3xl flex-col items-center justify-between py-7 px-4 sm:items-start mx-auto">
         <Image
           className="dark:invert"
           src="/next.svg"
