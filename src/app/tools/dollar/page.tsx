@@ -3,7 +3,7 @@ import { DollarStats } from "@/components/tools/dollar-stats";
 import { DollarProvider } from "@/context/dollar-context";
 import { fetchDollarRates } from "@/lib/api/dollar";
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export default async function DollarPage() {
   const lastUpdated = new Date().toLocaleTimeString();

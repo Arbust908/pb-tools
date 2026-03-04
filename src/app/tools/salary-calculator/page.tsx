@@ -1,7 +1,7 @@
 import { SalaryCalculator } from "@/components/tools/salary-calculator";
 import { fetchDollarRates } from "@/lib/api/dollar";
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export default async function SalaryCalculatorPage() {
   const rates = await fetchDollarRates();

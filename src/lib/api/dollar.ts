@@ -2,7 +2,8 @@ import { DollarRate } from "@/types/dollar";
 
 export async function fetchDollarRates(): Promise<DollarRate[]> {
   try {
-    const res = await fetch('http://localhost:3000/api/dolar', {
+    const base = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+    const res = await fetch(`${base}/api/dolar`, {
       next: { revalidate: 300 } // Cache for 5 minutes
     });
 
